@@ -30,11 +30,11 @@ This will be useful for viewers who wish to watch specific colors being used in 
 
 Please review the following datasets:
 
-[Dataset 1]()
+[Dataset 1](https://github.com/SvitLanaPavl/atlas-the-joy-of-painting-api/blob/main/The%20Joy%20Of%20Painiting%20-%20Colors%20Used)
 
-[Dataset 2]()
+[Dataset 2](https://github.com/SvitLanaPavl/atlas-the-joy-of-painting-api/blob/main/The%20Joy%20Of%20Painiting%20-%20Subject%20Matter)
 
-[Dataset 3]()
+[Dataset 3](https://github.com/SvitLanaPavl/atlas-the-joy-of-painting-api/blob/main/The%20Joy%20Of%20Painting%20-%20Episode%20Dates)
 
 The data has been collected from numerous sources and is everything required to create a database and API that would allow your local public broadcasting station to provide a service to filter episodes of The Joy Of Painting. Though this data is great, it was collected by three different individuals and they had three different ways they chose to store data. Please review the collected data and design a database that will store all of this information in a way that will make it usable via the API to filter episodes of The Joy of Painting.
 
