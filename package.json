@@ -19,6 +19,7 @@
   "homepage": "https://github.com/SvitLanaPavl/atlas-the-joy-of-painting-api#readme",
   "dependencies": {
     "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.5",
     "mysql2": "^3.10.3"
   }
 }

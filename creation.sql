@@ -1,11 +1,11 @@
 USE joy_of_painting;
 
 -- Drop dependent tables first
-DROP TABLE IF EXISTS episode_features;
+DROP TABLE IF EXISTS episode_subjects;
 DROP TABLE IF EXISTS episode_colors;
 
 -- Drop main tables
-DROP TABLE IF EXISTS features;
+DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS colors;
 DROP TABLE IF EXISTS episodes;
 
@@ -15,6 +15,8 @@ CREATE TABLE episodes (
   title VARCHAR(255),
   season INT,
   episode INT,
+  painting_index INT,
+  notes VARCHAR(255),
   broadcast_date DATE,
   youtube_url VARCHAR(255),
   image_url VARCHAR(255)
