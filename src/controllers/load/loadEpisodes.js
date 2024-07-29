@@ -105,7 +105,7 @@ const loadEpisodes = async () => {
         youtubeUrl,
         imageUrl
       ]);
-      console.log(`Inserted episode: ${episode.title}`);
+      // console.log(`Inserted episode: ${episode.title}`);
     } catch (err) {
       console.error(`Error inserting episode: ${err.message}`);
     }

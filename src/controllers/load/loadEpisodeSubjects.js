@@ -27,7 +27,7 @@ const loadEpisodeSubjects = async (subjectsMap, episodeSubjects) => {
         const { id: episode_id, title } = episodeResult;
 
         // Log the found episode for verification
-        console.log(`Matched episode: ${title} (Season ${season}, Episode ${episodeNum}) with ID ${episode_id}`);
+        // console.log(`Matched episode: ${title} (Season ${season}, Episode ${episodeNum}) with ID ${episode_id}`);
 
         for (const subject of item.subjects) {
           // Normalize subject name for case-insensitive matching
@@ -49,7 +49,7 @@ const loadEpisodeSubjects = async (subjectsMap, episodeSubjects) => {
               INSERT INTO episode_subjects (episode_id, subject_id)
               VALUES (?, ?)
             `, [episode_id, subject_id]);
-            console.log(`Inserted episode_subject: episode_id ${episode_id}, subject_id ${subject_id}`);
+            // console.log(`Inserted episode_subject: episode_id ${episode_id}, subject_id ${subject_id}`);
           } catch (err) {
             console.error(`Error inserting episode_subject: ${err.message}`);
           }
