@@ -6,13 +6,13 @@ const { parseDate } = require('../../utils/dateUtils');
 const loadEpisodes = async () => {
   const episodesFromCsv = [];
   const colorsData = [];
+  const subjectsData = [];
 
   // Read episodes.csv
   const readEpisodes = new Promise((resolve, reject) => {
     fs.createReadStream('data/episodes.csv')
       .pipe(csv(['title', 'broadcast_date', 'notes']))
       .on('data', (row) => {
-        // Extract title and broadcast_date, handling notes if present
         const title = row.title.trim();
         const broadcast_date = parseDate(row.broadcast_date.trim());
         const notes = row.notes ? row.notes.trim() : null;
@@ -36,8 +36,21 @@ const loadEpisodes = async () => {
       .on('error', reject);
   });
 
-  // Wait for both files to be read
-  await Promise.all([readEpisodes, readColors]);
+  // Read subjects.csv
+  const readSubjects = new Promise((resolve, reject) => {
+    fs.createReadStream('data/subjects.csv')
+      .pipe(csv({
+        mapHeaders: ({ header }) => header.trim() // Trim headers to avoid whitespace issues
+      }))
+      .on('data', (row) => {
+        subjectsData.push(row);
+      })
+      .on('end', resolve)
+      .on('error', reject);
+  });
+
+  // Wait for all files to be read
+  await Promise.all([readEpisodes, readColors, readSubjects]);
 
   // Create a map of color data for easy lookup
   const colorMap = new Map();
@@ -52,11 +65,28 @@ const loadEpisodes = async () => {
     });
   });
 
+  // Create a map for subjects data to look up episodes and titles
+  const subjectsMap = new Map();
+  subjectsData.forEach((row) => {
+    const episodeId = row['EPISODE'].trim().toUpperCase();
+    const match = episodeId.match(/S(\d+)E(\d+)/i);
+    if (match) {
+      const season = parseInt(match[1], 10);
+      const episodeNum = parseInt(match[2], 10);
+      const title = row['TITLE'].trim().toLowerCase();
+      subjectsMap.set(title, { season, episodeNum });
+    }
+  });
+
   // Insert combined data into the database
   for (const episode of episodesFromCsv) {
-    const colorData = colorMap.get(episode.title.toLowerCase());
-    const season = colorData ? colorData.season : null;
-    const episodeNum = colorData ? colorData.episode : null;
+    const titleLower = episode.title.toLowerCase();
+    const colorData = colorMap.get(titleLower);
+    const subjectData = subjectsMap.get(titleLower) || {};
+
+    // Determine the best available data for season and episode
+    const season = colorData ? colorData.season : subjectData.season || null;
+    const episodeNum = colorData ? colorData.episode : subjectData.episodeNum || null;
     const paintingIndex = colorData ? colorData.painting_index : null;
     const youtubeUrl = colorData ? colorData.youtube_url : null;
     const imageUrl = colorData ? colorData.image_url : null;
@@ -82,7 +112,7 @@ const loadEpisodes = async () => {
   }
 
   // Log missing episodes (if necessary for debugging)
-  for (const [title, colorData] of colorMap.entries()) {
+  for (const [title, subjectData] of subjectsMap.entries()) {
     const episode = episodesFromCsv.find(e => e.title.toLowerCase() === title);
     if (!episode) {
       console.log(`Episode ID not found for title: ${title}`);
