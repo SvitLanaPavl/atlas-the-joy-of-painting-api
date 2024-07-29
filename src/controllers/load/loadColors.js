@@ -13,6 +13,7 @@ const loadColors = async () => {
           const colors = parseColors(row.colors);
           const colorHexes = parseColors(row.color_hex);
           colors.forEach((color, index) => {
+            color = color.toLowerCase(); // Convert color to lowercase
             if (!colorsMap.has(color)) {
               colorsMap.set(color, colorHexes[index]);
             }

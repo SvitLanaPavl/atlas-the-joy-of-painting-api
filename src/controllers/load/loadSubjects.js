@@ -16,7 +16,7 @@ const loadSubjects = async () => {
               subjects.push(key);
             }
           });
-          episodeSubjects.push({ episode_id: row.EPISODE, subjects });
+          episodeSubjects.push({ episode_id: row.EPISODE.trim().toLowerCase(), subjects });
         } catch (err) {
           console.error(`Error parsing subjects: ${err.message}`);
         }

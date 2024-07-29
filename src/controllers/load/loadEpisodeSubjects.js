@@ -4,7 +4,7 @@ const loadEpisodeSubjects = async (subjectsMap, episodeSubjects) => {
   return new Promise(async (resolve, reject) => {
     try {
       for (const item of episodeSubjects) {
-        const [episodeResult] = await query(`SELECT id FROM episodes WHERE title = ?`, [item.episode_id]);
+        const [episodeResult] = await query(`SELECT id FROM episodes WHERE LOWER(title) = ?`, [item.episode_id]);
         const episode_id = episodeResult ? episodeResult.id : null;
 
         if (episode_id === null) {
