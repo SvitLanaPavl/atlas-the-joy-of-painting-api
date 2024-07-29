@@ -10,25 +10,17 @@ const loadEpisodes = async () => {
   // Read episodes.csv
   const readEpisodes = new Promise((resolve, reject) => {
     fs.createReadStream('data/episodes.csv')
-      .pipe(csv(['title', 'broadcast_date', 'season', 'episode', 'painting_index', 'notes', 'extra1', 'extra2']))
+      .pipe(csv(['title', 'broadcast_date', 'notes']))
       .on('data', (row) => {
-        // Combine notes and any extra fields
-        let notes = row.notes || ''; // Default to an empty string if notes is undefined
-        if (row.extra1) notes += `, ${row.extra1}`;
-        if (row.extra2) notes += `, ${row.extra2}`;
-        row.notes = notes.trim(); // Trim any leading/trailing whitespace
+        // Extract title and broadcast_date, handling notes if present
+        const title = row.title.trim();
+        const broadcast_date = parseDate(row.broadcast_date.trim());
+        const notes = row.notes ? row.notes.trim() : null;
 
-        // Convert broadcast_date to standard format
-        row.broadcast_date = parseDate(row.broadcast_date);
-
-        episodesFromCsv.push(row);
+        episodesFromCsv.push({ title, broadcast_date, notes });
       })
-      .on('end', () => {
-        resolve();
-      })
-      .on('error', (err) => {
-        reject(err);
-      });
+      .on('end', resolve)
+      .on('error', reject);
   });
 
   // Read colors.csv
@@ -40,12 +32,8 @@ const loadEpisodes = async () => {
       .on('data', (row) => {
         colorsData.push(row);
       })
-      .on('end', () => {
-        resolve();
-      })
-      .on('error', (err) => {
-        reject(err);
-      });
+      .on('end', resolve)
+      .on('error', reject);
   });
 
   // Wait for both files to be read
@@ -66,12 +54,12 @@ const loadEpisodes = async () => {
 
   // Insert combined data into the database
   for (const episode of episodesFromCsv) {
-    const colorData = colorMap.get(episode.title.trim().toLowerCase());
-    const season = colorData ? colorData.season : parseInt(episode.season, 10) || null;
-    const episodeNum = colorData ? colorData.episode : parseInt(episode.episode, 10) || null;
-    const paintingIndex = colorData ? colorData.painting_index : parseInt(episode.painting_index, 10) || null;
-    const youtubeUrl = colorData ? colorData.youtube_url : episode.youtube_url || null;
-    const imageUrl = colorData ? colorData.image_url : episode.image_url || null;
+    const colorData = colorMap.get(episode.title.toLowerCase());
+    const season = colorData ? colorData.season : null;
+    const episodeNum = colorData ? colorData.episode : null;
+    const paintingIndex = colorData ? colorData.painting_index : null;
+    const youtubeUrl = colorData ? colorData.youtube_url : null;
+    const imageUrl = colorData ? colorData.image_url : null;
 
     try {
       await query(`
@@ -87,17 +75,17 @@ const loadEpisodes = async () => {
         youtubeUrl,
         imageUrl
       ]);
-      // console.log(`Inserted episode: ${episode.title}`);
+      console.log(`Inserted episode: ${episode.title}`);
     } catch (err) {
       console.error(`Error inserting episode: ${err.message}`);
     }
   }
 
-  // Log missing episodes
+  // Log missing episodes (if necessary for debugging)
   for (const [title, colorData] of colorMap.entries()) {
-    const episode = episodesFromCsv.find(e => e.title.trim().toLowerCase() === title);
+    const episode = episodesFromCsv.find(e => e.title.toLowerCase() === title);
     if (!episode) {
-      // console.log(`Episode ID not found for title: ${title}`);
+      console.log(`Episode ID not found for title: ${title}`);
     }
   }
 };
